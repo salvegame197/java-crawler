@@ -33,13 +33,9 @@ O resultado da execução do crawler deve ser:
 **How to run**
 
 ```
-# run it on a Linux or WSL, you need docker installed and configured
-
-Clone the project repository > git clone https://github.com/salvegame197/fullcycledocker-challenge2.git
-then on folder open terminal then > docker-compose up -d
-
-
-# now you can see on http://localhost:8080
+ - Build o projeto usando mvn clean install
+ - Inicie usando mvn spring-boot:run
+ - A web page vai estar acessivel via localhost:8080
 ```
 
 # :closed_book: License
