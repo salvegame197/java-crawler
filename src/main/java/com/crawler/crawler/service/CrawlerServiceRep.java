@@ -6,16 +6,20 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.util.StringUtils;
 
-import javax.annotation.processing.Generated;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
+@PropertySource("classpath:application.properties")
 public class CrawlerServiceRep implements CrawlerService {
+
+    @Value("${PRIMARY_URL}")
+    private String primaryURL;
 
     @Override
     public List<Movie> getWorstsMovies() {
@@ -30,8 +34,8 @@ public class CrawlerServiceRep implements CrawlerService {
 
             List<Movie> moviesTemp = new ArrayList<>();
 
-            String listURL = "https://www.imdb.com/chart/bottom?sort=rk,asc&mode=simple&page=1";
-            Document doc = Jsoup.connect(listURL).header("Accept-Language", "en").get();
+            String MOVIES_URL = "https://www.imdb.com/chart/bottom?sort=rk,asc&mode=simple&page=1";
+            Document doc = Jsoup.connect(this.primaryURL).header("Accept-Language", "en").get();
 
             Elements titles = doc.select("td.titleColumn");
             Elements ratings = doc.select("td.ratingColumn.imdbRating");
@@ -42,7 +46,7 @@ public class CrawlerServiceRep implements CrawlerService {
 
                 Movie movie = new Movie();
                 movie.setId((long) i);
-                movie.setTitle(title.text());
+                movie.setTitle(title.select("a").text());
                 movie.setRating(rating.text());
 
                 setSanitizedURL(title.select("a").attr("href"), movie);
@@ -90,7 +94,7 @@ public class CrawlerServiceRep implements CrawlerService {
                 if (isBestComment) {
                     Comment comment = new Comment();
                     comment.setId((long) i);
-                    comment.setComment(comments.get(i).text());
+                    comment.setComment(comments.get(i).select("div.content > div.text.show-more__control").text());
                     comment.setRating(ratingValue);
                     movie.setComments(comment);
                     break;
@@ -131,7 +135,7 @@ public class CrawlerServiceRep implements CrawlerService {
     }
 
     private void setDirectorsNames(Movie movie, Document doc) {
-        Elements elements = doc.getElementsByTag("span");
+        Elements elements = doc.select("span.ipc-metadata-list-item__label");
 
         for (Element element : elements) {
 
@@ -144,7 +148,6 @@ public class CrawlerServiceRep implements CrawlerService {
                 movie.setDirector(element.nextElementSibling().text());
                 break;
             }
-
         }
     }
 }

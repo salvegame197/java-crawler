@@ -28,10 +28,6 @@ public class Comment {
         this.rating = rating;
     }
 
-    public String toString(){
-        return "Comment: " + comment + " Rating: " + rating;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
